@@ -38,6 +38,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         stopButton.hidden = false
         recordButton.enabled = false
         
+        //create filepath NSURL
         let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         let currentDateTime = NSDate()
         let formatter = NSDateFormatter()
@@ -45,10 +46,12 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         let recordingName = formatter.stringFromDate(currentDateTime)+".wav"
         let pathArray = [dirPath, recordingName]
         let filePath = NSURL.fileURLWithPathComponents(pathArray)
-        
+
+        //start AVAudioSession
         var session = AVAudioSession.sharedInstance()
         session.setCategory(AVAudioSessionCategoryPlayAndRecord, error: nil)
         
+        //instantiate AVAudioRecorder object and assign delgate
         audioRecorder = AVAudioRecorder(URL: filePath, settings: nil, error: nil)
         audioRecorder.delegate = self
         audioRecorder.meteringEnabled = true
@@ -67,6 +70,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
     func audioRecorderDidFinishRecording(recorder: AVAudioRecorder!, successfully flag: Bool) {
         if(flag){
+            //instantiate and initialize RecordedAudion object then pass to segue
             recordedAudio = RecordedAudio(filePathUrl: recorder.url, title: recorder.url.lastPathComponent)
             self.performSegueWithIdentifier("stopRecording", sender: recordedAudio)
         } else {

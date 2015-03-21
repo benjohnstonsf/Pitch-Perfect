@@ -16,9 +16,11 @@ class PlaySoundsViewController: UIViewController {
     
     var audioEngine:AVAudioEngine!
     var audioFile:AVAudioFile!
+    var audioPlayerNode = AVAudioPlayerNode()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // initialize AVAudioPlayer object with data from segue
         audioPlayer = AVAudioPlayer(contentsOfURL: receivedAudio.filePathUrl, error: nil)
         audioPlayer.enableRate = true
         
@@ -30,22 +32,23 @@ class PlaySoundsViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-    @IBAction func playFast(sender: UIButton) {
+    func playAudioWithVariableSpeed(speed: Float) {
+        // method to play audio at variable speed
         audioPlayer.stop()
         audioEngine.stop()
         audioEngine.reset()
         audioPlayer.currentTime = 0.0
-        audioPlayer.rate = 2
+        audioPlayer.rate = speed
         audioPlayer.play()
+        
+    }
+    
+    @IBAction func playFast(sender: UIButton) {
+        playAudioWithVariableSpeed(2)
     }
 
     @IBAction func playSlow(sender: UIButton) {
-        audioPlayer.stop()
-        audioEngine.stop()
-        audioEngine.reset()
-        audioPlayer.currentTime = 0.0
-        audioPlayer.rate = 0.2
-        audioPlayer.play()
+        playAudioWithVariableSpeed(0.5)
     }
     
     @IBAction func playChipmunkAudio(sender: UIButton) {
@@ -61,16 +64,25 @@ class PlaySoundsViewController: UIViewController {
     }
     
     @IBAction func stopAll(sender: UIButton) {
-        audioPlayer.stop()
+        resetAudioSessions()
     }
     
-    func playAudioWithEcho(feedback: Float){
+    func resetAudioSessions(){
+        //stop all playback and reset audioEngine
         audioPlayer.stop()
         audioEngine.stop()
         audioEngine.reset()
-        
-        var audioPlayerNode = AVAudioPlayerNode()
+    }
+    
+    func attachAudioPlayerNode(){
+        audioPlayerNode = AVAudioPlayerNode()
         audioEngine.attachNode(audioPlayerNode)
+    }
+    
+    
+    func playAudioWithEcho(feedback: Float){
+        resetAudioSessions()
+        attachAudioPlayerNode()
         
         var changeEchoEffect = AVAudioUnitDelay()
         changeEchoEffect.feedback = feedback
@@ -86,12 +98,8 @@ class PlaySoundsViewController: UIViewController {
     }
     
     func playAudioWithVariablePitch(pitch: Float){
-        audioPlayer.stop()
-        audioEngine.stop()
-        audioEngine.reset()
-        
-        var audioPlayerNode = AVAudioPlayerNode()
-        audioEngine.attachNode(audioPlayerNode)
+        resetAudioSessions()
+        attachAudioPlayerNode()
         
         var changePitchEffect = AVAudioUnitTimePitch()
         changePitchEffect.pitch = pitch
